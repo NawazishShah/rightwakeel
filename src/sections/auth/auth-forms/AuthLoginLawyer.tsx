@@ -15,7 +15,7 @@ const AuthLoginLawyer = ({ forgot }: { forgot?: string }) => {
   const [checked, setChecked] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-  const { isLoggedIn, lawyerLogin } = useAuth();  // Destructure the lawyerLogin and isLoggedIn from useAuth
+  const { isLoggedIn, login } = useAuth();  // Destructure the login and isLoggedIn from useAuth
 
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
@@ -38,7 +38,7 @@ const AuthLoginLawyer = ({ forgot }: { forgot?: string }) => {
       })}
       onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
         try {
-          await lawyerLogin(values.email, values.password);  // Use the lawyerLogin function from useAuth
+          await login(values.email, values.password);  // Use the login function from useAuth
 
           if (isLoggedIn) {  // If login is successful, redirect to the dashboard
             navigate('/dashboard');

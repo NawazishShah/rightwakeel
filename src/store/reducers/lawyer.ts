@@ -37,6 +37,9 @@ const slice = createSlice({
     getSpecialtiesSuccess(state, action) {
       state.specialties = action.payload;
     },
+    setLawyerData(state, action) {
+      state.lawyer = action.payload;
+    },
   },
 });
 
@@ -87,11 +90,25 @@ export function getSpecialties() {
     }
   };
 }
-export const getLawyerById = (id: string) => async (dispatch: any) => {
-  try {
-    const response = await axios.get(`/api/lawyers/${id}`); // Use axios for consistency
-    dispatch(slice.actions.getLawyerSuccess(response.data)); // Use the existing success action
-  } catch (error) {
-    dispatch(slice.actions.hasError(error));
-  }
-};
+export function getLawyerById(id: string) {
+  return async (dispatch: any) => {
+    try {
+      const response = await axios.get(`/api/lawyers/${id}`);
+      dispatch(slice.actions.setLawyerData(response.data)); // Set lawyer data on success
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+
+export function updateLawyerProfile(id: string, data: any) {
+  return async (dispatch: any) => {
+    try {
+      const response = await axios.put(`/api/lawyers/updateProfile/${id}`, data);
+      dispatch(slice.actions.setLawyerData(response.data)); // Update data in the store if needed
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+

@@ -1,4 +1,4 @@
-import { RefObject, useEffect, useState } from 'react';
+import { RefObject, useEffect } from 'react';
 import { useOutletContext } from 'react-router';
 
 // material-ui
@@ -28,13 +28,15 @@ import { Formik } from 'formik';
 // project-imports
 import MainCard from 'components/MainCard';
 import countries from 'data/countries';
-import { dispatch } from 'store';
-import { openSnackbar } from 'store/reducers/snackbar';
-import axios from 'axios';
+import { dispatch, RootState } from 'store';
+// import { openSnackbar } from 'store/reducers/snackbar';
+// import axios from 'axios';
 
 // assets
 import { Add } from 'iconsax-react';
 import useAuth from 'hooks/useAuth';
+import { getLawyerById, updateLawyerProfile } from 'store/reducers/lawyer';
+import { useSelector } from 'react-redux';
 
 // styles & constant
 const ITEM_HEIGHT = 48;
@@ -83,7 +85,6 @@ const Specialities = [
   'Taxation Law'
 ];
 
-
 function useInputRef() {
   return useOutletContext<RefObject<HTMLInputElement>>();
 }
@@ -92,8 +93,7 @@ function useInputRef() {
 
 const TabPersonal = () => {
   const { user, isLoggedIn } = useAuth();
-  const [lawyerData, setLawyerData] = useState(null);
-  console.log(lawyerData, user, isLoggedIn, "===");
+  // const [lawyerData, setLawyerData] = useState(null);
 
   const handleChangeDay = (event: SelectChangeEvent<string>, date: Date, setFieldValue: (field: string, value: any) => void) => {
     setFieldValue('dob', new Date(date.setDate(parseInt(event.target.value, 10))));
@@ -105,105 +105,80 @@ const TabPersonal = () => {
 
   const maxDate = new Date();
   maxDate.setFullYear(maxDate.getFullYear() - 18);
+
+  console.log(user, isLoggedIn, '===');
+  const lawyerData = useSelector((state: RootState) => state.lawyer.lawyer);
+
   const inputRef = useInputRef();
 
   useEffect(() => {
-    const fetchLawyerData = async () => {
-      if (isLoggedIn && user) {
-        try {
-          const response = await axios.get(`/api/lawyers/${user.id}`); // Use the user ID here
-          setLawyerData(response.data);
-        } catch (error) {
-          console.error('Error fetching lawyer data:', error);
-        }
-      }
-    };
+    if (isLoggedIn && user?.id) {
+      dispatch(getLawyerById(user.id));
+    }
+  }, [isLoggedIn, user?.id, dispatch]);
 
-    fetchLawyerData();
-  }, [isLoggedIn, user]); 
+  const initialValues = {
+    firstname: lawyerData?.firstname || '',
+    lastname: lawyerData?.lastname || '',
+    email: lawyerData?.email || '',
+    dob: lawyerData?.dob || new Date(),
+    licenceNumber: lawyerData?.licenceNumber || '',
+    cnicNumber: lawyerData?.cnicNumber || '',
+    countryCode: lawyerData?.countryCode || '+91',
+    contact: lawyerData?.contact || '',
+    designation: lawyerData?.designation || '',
+    qualificationTitle: lawyerData?.qualificationTitle || '',
+    address: lawyerData?.address || '',
+    address1: lawyerData?.address1 || '',
+    country: lawyerData?.country || 'US',
+    state: lawyerData?.state || '',
+    speciality: Array.isArray(lawyerData?.speciality) ? lawyerData?.speciality : [], // Ensure it's an array
+    languages: Array.isArray(lawyerData?.languages) ? lawyerData?.languages : [], // Ensure it's an array
+    courts: Array.isArray(lawyerData?.courts) ? lawyerData?.courts : [], // Ensure it's an array
+    note: lawyerData?.note || ''
+  };
 
   return (
     <MainCard content={false} title="Personal Information" sx={{ '& .MuiInputLabel-root': { fontSize: '0.875rem' } }}>
+      <Formik
+        initialValues={initialValues}
+        enableReinitialize={true}
+        validationSchema={Yup.object().shape({
+          firstname: Yup.string().max(255).required('First Name is required.'),
+          lastname: Yup.string().max(255).required('Last Name is required.'),
+          email: Yup.string().email('Invalid email address.').max(255).required('Email is required.'),
+          dob: Yup.date().required('Date of birth is required.'),
+          licenceNumber: Yup.string().required('licence Number is required.'),
+          cnicNumber: Yup.string().length(13, 'CNIC must be 13 digits long').required('CNIC Card Number is required.'),
+          contact: Yup.string().length(10, 'Contact should be exactly 10 digits').required('Phone number is required'),
+          designation: Yup.string().required('Designation is required'),
+          address: Yup.string().min(50, 'Address too short.').required('Address is required'),
+          country: Yup.string().required('Country is required'),
+          state: Yup.string().required('State is required'),
+          note: Yup.string().min(150, 'Note should be more than 150 characters.')
+        })}
+        onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
+          try {
+            // Prepare the data to send
+            const { speciality, languages, courts, ...rest } = values;
+            const updatedData = {
+              ...rest,
+              speciality: Array.isArray(speciality) ? speciality : [],
+              languages: Array.isArray(languages) ? languages : [],
+              courts: Array.isArray(courts) ? courts : []
+            };
 
-<Formik
-  initialValues={{
-    firstname: 'Stebin',
-    lastname: 'Ben',
-    email: 'abcd@gmail.com',
-    dob: new Date('03-10-1993'),
-    ccNumber: '12',
-    cnicNumber: '6765467896543',
-    countryCode: '+91',
-    contact: 9652364852,
-    designation: 'Advocate',
-    qualificationTitle: '',
-    address: '3801 Chalk Butte Rd, Cut Bank, MT 59427, United States',
-    address1: '301 Chalk Butte Rd, Cut Bank, NY 96572, New York',
-    country: 'US',
-    state: 'California',
-    speciality: [
-      'Auqaf & Religious affairs Law',
-      'Aviation Law',
-      'Banking Law',
-      'Cantonments Law',
-      'Immigration Law',
-      'International Law',
-      'Labour Law',
-      'Land Revenue Law',
-      'Landlord & Tenancy Law',
-      'Medical Negligence Law',
-      'Money laundering Law',
-      'Nab Law',
-      'Taxation Law'
-    ],
-    note: `Lorem Ipsum is simply dummy text of the printing and typesetting industry.Lorem Ipsum is simply dummy text of the printing and typesetting industry.Lorem Ipsum is simply dummy text of the printing and typesetting industry.`,
-    submit: null,
-    password: '123456'
-  }}
-  validationSchema={Yup.object().shape({
-    firstname: Yup.string().max(255).required('First Name is required.'),
-    lastname: Yup.string().max(255).required('Last Name is required.'),
-    email: Yup.string().email('Invalid email address.').max(255).required('Email is required.'),
-    dob: Yup.date().required('Date of birth is required.'),
-    ccNumber: Yup.string().required('CC Number is required.'),
-    cnicNumber: Yup.string().length(13, 'CNIC must be 13 digits long').required('CNIC Card Number is required.'),
-    contact: Yup.string().length(10, 'Contact should be exactly 10 digits').required('Phone number is required'),
-    designation: Yup.string().required('Designation is required'),
-    address: Yup.string().min(50, 'Address too short.').required('Address is required'),
-    country: Yup.string().required('Country is required'),
-    state: Yup.string().required('State is required'),
-    note: Yup.string().min(150, 'Note should be more than 150 characters.'),
-  })}
-  onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
-    try {
-      // Send the form data to the backend
-      const response = await axios.put('http://localhost:5000/api/lawyers/updateProfile', values);
-      console.log(response);
-      // Handle success
-      dispatch(
-        openSnackbar({
-          open: true,
-          message: 'Personal profile updated successfully.',
-          variant: 'alert',
-          alert: {
-            color: 'success',
-          },
-          close: false,
-        })
-      );
-      setStatus({ success: true });
-      setSubmitting(false);
-    } catch (err) {
-      // Handle error
-      console.error(err);
-      setStatus({ success: false });
-      // setErrors({ submit: err?.message });
-      setSubmitting(false);
-    }
-  }}
->
-
-
+            await dispatch(updateLawyerProfile(user?.id ?? '', updatedData));
+            setStatus({ success: true });
+            setSubmitting(false);
+            setErrors({});
+          } catch (error) {
+            setStatus({ success: false });
+            setSubmitting(false);
+            setErrors({});
+          }
+        }}
+      >
         {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, setFieldValue, touched, values }) => (
           <form noValidate onSubmit={handleSubmit}>
             <Box sx={{ p: 2.5 }}>
@@ -263,7 +238,7 @@ const TabPersonal = () => {
                     />
                     {touched.email && errors.email && (
                       <FormHelperText error id="personal-email-helper">
-                        {errors.email}
+                        {typeof errors.email === 'string' ? errors.email : 'Invalid email'}
                       </FormHelperText>
                     )}
                   </Stack>
@@ -336,19 +311,19 @@ const TabPersonal = () => {
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <Stack spacing={1.25}>
-                    <InputLabel htmlFor="personal-cc-number">CC Number</InputLabel>
+                    <InputLabel htmlFor="personal-licence-number">licence Number</InputLabel>
                     <TextField
                       fullWidth
-                      id="personal-cc-number"
-                      value={values.ccNumber}
-                      name="ccNumber"
+                      id="personal-licence-number"
+                      value={values.licenceNumber}
+                      name="licenceNumber"
                       onBlur={handleBlur}
                       onChange={handleChange}
-                      placeholder="CC Number"
+                      placeholder="licence Number"
                     />
-                    {touched.ccNumber && errors.ccNumber && (
-                      <FormHelperText error id="personal-cc-number-helper">
-                        {errors.ccNumber}
+                    {touched.licenceNumber && errors.licenceNumber && (
+                      <FormHelperText error id="personal-licence-number-helper">
+                        {errors?.licenceNumber}
                       </FormHelperText>
                     )}
                   </Stack>
@@ -463,6 +438,7 @@ const TabPersonal = () => {
                       onChange={(event, value) => {
                         setFieldValue('languages', value);
                       }}
+                      value={values.languages}
                       renderInput={(params) => (
                         <TextField
                           {...params}
@@ -499,6 +475,7 @@ const TabPersonal = () => {
                       onChange={(event, value) => {
                         setFieldValue('courts', value);
                       }}
+                      value={values.courts}
                       renderInput={(params) => (
                         <TextField
                           {...params}
@@ -638,7 +615,7 @@ const TabPersonal = () => {
                 onBlur={handleBlur}
                 getOptionLabel={(label) => label}
                 onChange={(event, newValue) => {
-                  setFieldValue('Speciality', newValue);
+                  setFieldValue('speciality', newValue); // Note: Make sure the key is correct (lowercase)
                 }}
                 renderInput={(params) => <TextField {...params} name="Speciality" placeholder="Add Specialities" />}
                 renderTags={(value, getTagProps) =>
@@ -694,7 +671,7 @@ const TabPersonal = () => {
                 <Button variant="outlined" color="secondary">
                   Cancel
                 </Button>
-                <Button disabled={isSubmitting } type="submit" variant="contained">
+                <Button disabled={isSubmitting} type="submit" variant="contained">
                   Save
                 </Button>
               </Stack>

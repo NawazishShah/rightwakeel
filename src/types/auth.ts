@@ -75,7 +75,7 @@ export type JWTContextType = {
     logout: () => void;
   login: (email: string, password: string) => Promise<void>;
   lawyerLogin: (email: string, password: string) => Promise<void>;
-  register: (type: 'client' | 'lawyer', values: RegisterValues) => Promise<void>;
+  register: ( values: RegisterValues) => Promise<void>;
     resetPassword: (email: string) => Promise<void>;
   updateProfile: VoidFunction;
 };

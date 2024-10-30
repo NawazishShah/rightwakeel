@@ -13,6 +13,8 @@ import Loader from 'components/Loader';
 import axios from 'utils/axios';
 import { KeyedObject } from 'types/root';
 import { AuthProps, JWTContextType } from 'types/auth';
+import { useLocation } from 'react-router';
+
 
 // const chance = new Chance();
 
@@ -33,17 +35,22 @@ interface RegisterValues {
   contact?: string; // Optional for lawyers
 }
 
-const verifyToken: (st: string) => boolean = (serviceToken) => {
-  if (!serviceToken) {
-    return false;
-  }
-  const decoded: KeyedObject = jwtDecode(serviceToken);
 
-  /**
-   * Property 'exp' does not exist on type '<T = unknown>(token: string, options?: JwtDecodeOptions | undefined) => T'.
-   */
-  return decoded.exp > Date.now() / 1000;
+
+const verifyToken = (serviceToken: string | null): { isValid: boolean; user?: KeyedObject } => {
+  if (!serviceToken) {
+    return { isValid: false };
+  }
+
+  const decoded: KeyedObject = jwtDecode(serviceToken);
+  console.log(decoded,'services deconded tocken in context')
+  
+  // Including the role
+  const isValid = decoded.exp > Date.now() / 1000;
+
+  return { isValid, user: { ...decoded, role: decoded.role } }; // Include role
 };
+
 
 const setSession = (serviceToken?: string | null) => {
   console.log(serviceToken,'sericce tocken in context')
@@ -63,40 +70,47 @@ const JWTContext = createContext<JWTContextType | null>(null);
 export const JWTProvider = ({ children }: { children: ReactElement }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
+
+  const location = useLocation(); // Get the current path
+const getRoleFromPath = () => {
+  if (location.pathname === '/login' || location.pathname === '/register') return 'user';
+  if (location.pathname === '/lawyer/login' || location.pathname === '/lawyer/register') return 'lawyer';
+  if (location.pathname === '/admin/login' || location.pathname === '/admin/register') return 'admin';
+  return 'user'; // Default role if no match
+};
+const role = getRoleFromPath(); // Get role based on the path
   useEffect(() => {
     const init = async () => {
       try {
         const serviceToken = localStorage.getItem('serviceToken');
-        if (serviceToken && verifyToken(serviceToken)) {
+        const { isValid, user } = verifyToken(serviceToken); // Now it's safe to pass
+        if (isValid && user) {
           setSession(serviceToken);
-          const response = await axios.get('/api/account/me');
-          const { user } = response.data;
-
+          
+          // Update user state with role
           dispatch({
             type: LOGIN,
             payload: {
               isLoggedIn: true,
-              user
+              user,
             }
           });
         } else {
-          dispatch({
-            type: LOGOUT
-          });
+          dispatch({ type: LOGOUT });
         }
       } catch (err) {
         console.error(err);
-        dispatch({
-          type: LOGOUT
-        });
+        dispatch({ type: LOGOUT });
       }
     };
-
+  
     init();
   }, []);
+  
+  
 
   const login = async (email: string, password: string) => {
-    const response = await axios.post('/api/account/login', { email, password });
+    const response = await axios.post('/api/account/login', { email, password, role: role });
     const { token, user } = response.data;
     setSession(token);
     dispatch({
@@ -109,48 +123,21 @@ export const JWTProvider = ({ children }: { children: ReactElement }) => {
   };
   const lawyerLogin = async (email: string, password: string) => {
     const response = await axios.post('/api/lawyer/login', { email, password });
-    const { serviceToken, user } = response.data;
-    setSession(serviceToken); // Set the session
+    const { token, user } = response.data;
+    setSession(token); // Set the session
     dispatch({
       type: LOGIN,
       payload: { isLoggedIn: true, user },
     });
   };
 
-  // const register = async (email: string, password: string, firstName: string, lastName: string) => {
-  //   const id = chance.bb_pin();
-  //   const response = await axios.post('/api/account/register', {
-  //     id,
-  //     email,
-  //     password,
-  //     firstName,
-  //     lastName
-  //   });
-  //   let users = response.data;
 
-  //   if (window.localStorage.getItem('users') !== undefined && window.localStorage.getItem('users') !== null) {
-  //     const localUsers = window.localStorage.getItem('users');
-  //     users = [
-  //       ...JSON.parse(localUsers!),
-  //       {
-  //         id,
-  //         email,
-  //         password,
-  //         name: `${firstName} ${lastName}`
-  //       }
-  //     ];
-  //   }
-
-  //   window.localStorage.setItem('users', JSON.stringify(users));
-  // };
-
-  const register = async (type: 'client' | 'lawyer', values: RegisterValues) => {
-    const endpoint = type === 'client' ? '/api/account/register' : '/api/lawyer/register';
+  const register = async ( values: RegisterValues)=> {
     
-    const response = await axios.post(endpoint, values);
-    const { serviceToken, user } = response.data;
+    const response = await axios.post('/api/account/register', { ...values, role: role });
+    const { token, user } = response.data;
     
-    setSession(serviceToken); // Set the session
+    setSession(token); // Set the session
     dispatch({
       type: LOGIN,
       payload: {
@@ -174,7 +161,13 @@ export const JWTProvider = ({ children }: { children: ReactElement }) => {
     return <Loader />;
   }
 
-  return <JWTContext.Provider value={{ ...state, login, lawyerLogin, logout, register, resetPassword, updateProfile }}>{children}</JWTContext.Provider>;
-};
+  return (
+    <JWTContext.Provider
+      value={{ ...state, login, lawyerLogin, logout, register, resetPassword, updateProfile }}
+    >
+      {children}
+    </JWTContext.Provider>
+  );
+  };
 
 export default JWTContext;

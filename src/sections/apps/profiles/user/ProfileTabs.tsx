@@ -1,51 +1,86 @@
 import { useEffect, useState, ChangeEvent, MouseEvent } from 'react';
 import { Link } from 'react-router-dom';
-
-// material-ui
+import { useSelector } from 'react-redux';
+import { getLawyerById } from 'store/reducers/lawyer'; // Action to fetch lawyer by ID
 import { useTheme } from '@mui/material/styles';
 import { Box, Divider, FormLabel, Grid, TextField, Menu, MenuItem, Stack, Typography } from '@mui/material';
-
-// project-imports
 import MainCard from 'components/MainCard';
 import Avatar from 'components/@extended/Avatar';
 import ProfileTab from './ProfileTab';
 import { facebookColor, linkedInColor } from 'config';
-
-// assets
-import { Apple, Camera, Facebook, Google, More } from 'iconsax-react';
+import { Google, Facebook, Apple, Camera, More } from 'iconsax-react';
+import useAuth from 'hooks/useAuth';
+import { dispatch, RootState } from 'store';
 import IconButton from 'components/@extended/IconButton';
-
-// types
-import { ThemeMode } from 'types/config';
-
-const avatarImage = require.context('assets/images/users', true);
+import axios from 'axios';
 
 // ==============================|| USER PROFILE - TABS ||============================== //
 
-interface Props {
-  focusInput: () => void;
-}
-
-const ProfileTabs = ({ focusInput }: Props) => {
+const ProfileTabs = ({ focusInput }: { focusInput: () => void }) => {
   const theme = useTheme();
+  const { user } = useAuth();
+  const { lawyer } = useSelector((state: RootState) => state.lawyer);
+
   const [selectedImage, setSelectedImage] = useState<File | undefined>(undefined);
-  const [avatar, setAvatar] = useState<string | undefined>(avatarImage(`./avatar-thumb-1.png`));
+  const [avatar, setAvatar] = useState<string | undefined>(undefined);
+  
+  useEffect(() => {
+    dispatch(getLawyerById(user?.id ?? '')); // Dispatch action to fetch lawyer data
+  }, [dispatch, user?.id]);
 
   useEffect(() => {
+    // Set the avatar either from the selected image or from the lawyer object (if available)
     if (selectedImage) {
       setAvatar(URL.createObjectURL(selectedImage));
-    }
-  }, [selectedImage]);
+      console.log(selectedImage, URL.createObjectURL(selectedImage), "url imgaes")
+    } else if (lawyer && lawyer.avatar) {
+      setAvatar(`http://localhost:5000${lawyer.avatar}`); // Load avatar from the lawyer data
+      console.log(lawyer.avatar)
 
-  const [anchorEl, setAnchorEl] = useState<Element | ((element: Element) => Element) | null | undefined>(null);
+    }
+  }, [selectedImage, lawyer]);
+
+  const [anchorEl, setAnchorEl] = useState<Element | null>(null);
   const open = Boolean(anchorEl);
 
   const handleClick = (event: MouseEvent<HTMLButtonElement> | undefined) => {
-    setAnchorEl(event?.currentTarget);
+    setAnchorEl(event?.currentTarget as Element);
   };
 
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleImageUpload = async (file: File) => {
+    if (!user || !user.id) {
+      console.error('User ID is not available');
+      return; // Exit if user ID is not available
+    }
+    
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    try {
+      const response = await axios.put(`http://localhost:5000/api/lawyers/updateProfilePic/${user.id}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      console.log('Profile updated successfully', response.data);
+      // Update the avatar in state after successful upload
+      setAvatar(URL.createObjectURL(response.data.avatar)); // Assuming the response contains the new avatar URL
+    } catch (error) {
+      console.error('Error updating profile image', error);
+    }
+  };
+
+  const handleChangeAvatar = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const file = e.target.files[0];
+      setSelectedImage(file);
+      handleImageUpload(file); // Upload the image
+    }
   };
 
   return (
@@ -100,7 +135,7 @@ const ProfileTabs = ({ focusInput }: Props) => {
           </Stack>
           <Stack spacing={2.5} alignItems="center">
             <FormLabel
-              htmlFor="change-avtar"
+              htmlFor="change-avatar"
               sx={{
                 position: 'relative',
                 borderRadius: '50%',
@@ -109,13 +144,13 @@ const ProfileTabs = ({ focusInput }: Props) => {
                 cursor: 'pointer'
               }}
             >
-              <Avatar alt="Avatar 1" src={avatar} sx={{ width: 124, height: 124, border: '1px dashed' }} />
+              <Avatar alt="Avatar" src={avatar} sx={{ width: 124, height: 124, border: '1px dashed' }} />
               <Box
                 sx={{
                   position: 'absolute',
                   top: 0,
                   left: 0,
-                  backgroundColor: theme.palette.mode === ThemeMode.DARK ? 'rgba(255, 255, 255, .75)' : 'rgba(0,0,0,.65)',
+                  backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, .75)' : 'rgba(0,0,0,.65)',
                   width: '100%',
                   height: '100%',
                   opacity: 0,
@@ -132,15 +167,15 @@ const ProfileTabs = ({ focusInput }: Props) => {
             </FormLabel>
             <TextField
               type="file"
-              id="change-avtar"
+              id="change-avatar"
               placeholder="Outlined"
               variant="outlined"
               sx={{ display: 'none' }}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => setSelectedImage(e.target.files?.[0])}
+              onChange={handleChangeAvatar}
             />
             <Stack spacing={0.5} alignItems="center">
-              <Typography variant="h5">Nawazish Shah</Typography>
-              <Typography color="secondary">Advocate</Typography>
+              <Typography variant="h5">{lawyer?.firstname} {lawyer?.lastname}</Typography>
+              <Typography color="secondary">{lawyer?.designation}</Typography>
             </Stack>
             <Stack direction="row" spacing={3} sx={{ '& svg': { fontSize: '1.15rem', cursor: 'pointer' } }}>
               <Google variant="Bold" color={theme.palette.error.main} />

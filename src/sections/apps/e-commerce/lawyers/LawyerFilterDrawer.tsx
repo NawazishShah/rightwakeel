@@ -54,7 +54,7 @@ function LawyerFilterDrawer({ filter, initialState, handleDrawerOpen, openFilter
         case 'designation':
             setFilter({ ...filter, designation: params });
             break;
-        case 'specialty':
+        case 'speciality':
             if (rating !== undefined) {
                 newFilter = { ...filter, specialties: [...filter.specialties, params] };
             } else {

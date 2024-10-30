@@ -60,6 +60,7 @@ const LawyersPage = () => {
   // lawyer data
   const [lawyers, setLawyers] = useState<LawyersTypo[]>([]);
 
+  console.log('lawyers in lawyers lisiting', lawyers);
   useEffect(() => {
     setLawyers(lawyerState.lawyers);
   }, [lawyerState]);
@@ -79,7 +80,7 @@ const LawyersPage = () => {
   //   // Construct the filter object based on the query parameters
   //   const filter = {
   //     firstName: lawyerName || '',
-  //     specialty: lawArea || '',
+  //     speciality: lawArea || '',
   //     address: city || ''
   //   };
 
@@ -110,7 +111,7 @@ const LawyersPage = () => {
         case 'designation':
           newFilter.designation = params;
           break;
-        case 'specialty':
+        case 'speciality':
           if (rating !== undefined) {
             newFilter.specialties = [...newFilter.specialties, params];
           } else {
@@ -137,7 +138,7 @@ const LawyersPage = () => {
     lastName: '',
     address: '',
     designation: '',
-    specialty: '',
+    speciality: '',
     degree: '',
     search: '',
     sort: '',
@@ -161,14 +162,15 @@ const LawyersPage = () => {
   let lawyerResult: ReactElement | ReactElement[] = <></>;
   if (lawyers && lawyers.length > 0) {
    lawyerResult = lawyers.map((lawyer: LawyersTypo, index: number) => (
-  <Grid key={index} item xs={12} sm={6} md={6}>
+  <Grid key={index} item xs={12} sm={12} md={12}>
     <LawyerCard
       id={String(lawyer._id ?? '')} // Ensures it's a string
+      avatar={lawyer.avatar ?? ''}
       firstName={lawyer.firstname ?? ''}
       lastName={lawyer.lastname ?? ''}
       address={lawyer.location ?? ''}
       designation={lawyer.designation ?? ''}
-      specialty={lawyer.specialty ?? ''}
+      speciality={Array.isArray(lawyer.speciality) ? lawyer.speciality.join(', ') : lawyer.speciality ?? ''}
       degree={lawyer.degree ?? ''}
       rating={lawyer.rating ?? 0} // Pass the rating prop
       experience={lawyer.experience ?? 'N/A'} // Pass the experience prop

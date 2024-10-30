@@ -4,12 +4,10 @@ import { lazy } from 'react';
 import GuestGuard from 'utils/route-guard/GuestGuard';
 import CommonLayout from 'layout/CommonLayout';
 import Loadable from 'components/Loadable';
-import AuthLoginLawyer from 'sections/auth/auth-forms/AuthLoginLawyer';
 
 // render - login
 const AuthLogin = Loadable(lazy(() => import('pages/auth/auth1/login')));
 const AuthRegister = Loadable(lazy(() => import('pages/auth/auth1/register')));
-const AuthRegisterLawyer = Loadable(lazy(() => import('pages/auth/auth1/register-lawyer')));
 const AuthForgotPassword = Loadable(lazy(() => import('pages/auth/auth1/forgot-password')));
 const AuthCheckMail = Loadable(lazy(() => import('pages/auth/auth1/check-mail')));
 const AuthResetPassword = Loadable(lazy(() => import('pages/auth/auth1/reset-password')));
@@ -34,7 +32,11 @@ const LoginRoutes = {
         },
         {
           path: '/lawyer/login',
-          element: <AuthLoginLawyer />
+          element: <AuthLogin />
+        },
+        {
+          path: '/admin/login',
+          element: <AuthLogin />
         },
         {
           path: 'register',
@@ -42,7 +44,11 @@ const LoginRoutes = {
         },
         {
           path: 'lawyer/register',
-          element: <AuthRegisterLawyer />
+          element: <AuthRegister />
+        },
+        {
+          path: 'admin/register',
+          element: <AuthRegister />
         },
         {
           path: 'forgot-password',

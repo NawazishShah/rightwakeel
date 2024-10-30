@@ -9,13 +9,13 @@ import { Formik } from 'formik';
 import IconButton from 'components/@extended/IconButton';
 import AnimateButton from 'components/@extended/AnimateButton';
 import { Eye, EyeSlash } from 'iconsax-react';
-import useAuth from 'hooks/useAuth';  // Import the useAuth hook
+import useAuth from 'hooks/useAuth';
 
 const AuthLogin = ({ forgot }: { forgot?: string }) => {
   const [checked, setChecked] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-  const { isLoggedIn, login } = useAuth();  // Destructure the login and isLoggedIn from useAuth
+  const { isLoggedIn, login } = useAuth();
 
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
@@ -24,6 +24,9 @@ const AuthLogin = ({ forgot }: { forgot?: string }) => {
   const handleMouseDownPassword = (event: SyntheticEvent) => {
     event.preventDefault();
   };
+
+
+
 
   return (
     <Formik
@@ -38,9 +41,10 @@ const AuthLogin = ({ forgot }: { forgot?: string }) => {
       })}
       onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
         try {
-          await login(values.email, values.password);  // Use the login function from useAuth
 
-          if (isLoggedIn) {  // If login is successful, redirect to the dashboard
+          await login(values.email, values.password); // Pass role to login function
+
+          if (isLoggedIn) {
             navigate('/dashboard');
           }
         } catch (error: any) {

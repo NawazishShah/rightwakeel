@@ -21,7 +21,7 @@ const BenefitsContent = [
     points: [
       'Secure, confidential connections with clients.',
       'Share key updates like case reports, images, and videos with ease.',
-      'Boost visibility through searches by location, law specialty, experience, and more.',
+      'Boost visibility through searches by location, law speciality, experience, and more.',
       'Be accessible to clients anytime and anywhere they need you.'
     ],
     buttonText: 'Get Started'

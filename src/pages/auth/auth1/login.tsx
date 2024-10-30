@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 // material-ui
 import { Grid, Stack, Typography } from '@mui/material';
@@ -20,6 +20,20 @@ import imgGoogle from 'assets/images/auth/google.svg';
 
 const Login = () => {
   const { isLoggedIn } = useAuth();
+
+  const location = useLocation(); // Get the current path
+  const getRoleFromPath = () => {
+    if (location.pathname === '/login' ) return 'user';
+    if (location.pathname === '/lawyer/login') return 'lawyer';
+    if (location.pathname === '/admin/login') return 'admin';
+    return 'user'; // Default role if no match
+  };
+  const role = getRoleFromPath(); // Get role based on the path
+  const roleBasedRoutes = {
+    user: '/register',
+    admin: '/admin/register',
+    lawyer: '/lawyer/register'
+  };
 
   return (
     <AuthWrapper>
@@ -53,10 +67,11 @@ const Login = () => {
         </Grid>
         <Grid item xs={12}>
           <Stack direction="row" justifyContent="space-between" alignItems="baseline" sx={{ mb: { xs: -0.5, sm: 0.5 } }}>
-            <Typography variant="h3">Login</Typography>
+            <Typography variant="h3">Login as {role === "user"? "Client" : role}</Typography>
             <Typography
               component={Link}
-              to={isLoggedIn ? '/auth/register' : '/register'}
+              to={isLoggedIn ? '/auth/register' : roleBasedRoutes[role] || '/register'}
+
               variant="body1"
               sx={{ textDecoration: 'none' }}
               color="primary"

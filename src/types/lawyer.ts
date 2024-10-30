@@ -9,10 +9,20 @@ export type Lawyer = {
   id: string | number | undefined;
   profilePicture: string;
   name: string;    
+  email?: string;
+  dob?: Date;
+  licenceNumber: string;
+  cnicNumber: string;
+  countryCode: string;
+  contact: string;
+  qualificationTitle: string;
   firstname?: string; 
   lastname?: string;
+  country: string;
+  state: string;
   firm: string;
   address: string;
+  address1?: string;
   specialties?: string[];
   description?: string;
   experience?: string;
@@ -24,8 +34,11 @@ export type Lawyer = {
   created: Date;
   active: boolean; // Whether the lawyer is currently accepting clients
   designation?: string; // Add this line
-  specialty?: string; // Add this line
+  speciality?: string | string[]; // Add this line
   degree?: string; // Add this line
+  note?: string;
+  avatar?: string;
+  courts?: string[]; 
 };
 
 
@@ -54,7 +67,7 @@ export type LawyerFilter = {
   lastName?: string; 
   address?: string; 
   designation?: string; 
-  specialty?: string;  
+  speciality?: string;  
   degree?: string; 
 };
 

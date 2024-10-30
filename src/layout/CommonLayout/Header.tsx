@@ -154,7 +154,7 @@ const Header = ({ handleDrawerOpen, layout = 'landing', ...others }: Props) => {
                 <AnimateButton>
                   <Button
                     component={Link}
-                    href="/register-lawyer"
+                    href="lawyer/register"
                     disableElevation
                     startIcon={<ExportSquare />}
                     color="success"

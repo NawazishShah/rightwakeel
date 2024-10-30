@@ -9,9 +9,9 @@ const Specialties = ({ specialties, handelFilter }: { specialties: string[]; han
     setLoading(false);
   }, []);
 
-  const handleChange = (specialty: string, checked: boolean) => {
-    // Call the handler with the selected specialty and whether it's being added or removed
-    handelFilter('specialties', specialty, checked);
+  const handleChange = (speciality: string, checked: boolean) => {
+    // Call the handler with the selected speciality and whether it's being added or removed
+    handelFilter('specialties', speciality, checked);
   };
 
   return (
@@ -28,7 +28,7 @@ const Specialties = ({ specialties, handelFilter }: { specialties: string[]; han
                   key={item}
                   control={
                     <Checkbox
-                      checked={specialties.includes(item)} // Check if specialty is already selected
+                      checked={specialties.includes(item)} // Check if speciality is already selected
                       onChange={(e) => handleChange(item, e.target.checked)}
                     />
                   }

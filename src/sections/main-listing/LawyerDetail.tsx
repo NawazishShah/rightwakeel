@@ -66,7 +66,7 @@ const LawyerDetail = () => {
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
           {/* <Work color="primary" sx={{ mr: 1 }} /> */}
-          <Typography variant="body1">{lawyer.specialty}</Typography>
+          <Typography variant="body1">{lawyer.speciality}</Typography>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
           {/* <AttachMoney color="primary" sx={{ mr: 1 }} /> */}

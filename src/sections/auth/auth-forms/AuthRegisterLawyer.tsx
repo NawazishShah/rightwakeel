@@ -74,7 +74,7 @@ const AuthRegisterLawyer = () => {
       })}
       onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
         try {
-          await register('lawyer', values); // Call the register function from context
+          await register(values); // Call the register function from context
           if (scriptedRef.current) {
             setStatus({ success: true });
             setSubmitting(false);

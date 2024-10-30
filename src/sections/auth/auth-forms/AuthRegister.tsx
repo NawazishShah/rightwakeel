@@ -90,7 +90,7 @@ const AuthRegister = () => {
       onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
         console.log('Form submitted', values);
         try {
-          await register('client', values); // Call the register function
+          await register(values); // Call the register function
           if (scriptedRef.current) {
             setStatus({ success: true });
             setSubmitting(false);

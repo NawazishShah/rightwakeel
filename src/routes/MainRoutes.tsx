@@ -5,7 +5,6 @@ import MainLayout from 'layout/MainLayout';
 import CommonLayout from 'layout/CommonLayout';
 import Loadable from 'components/Loadable';
 import AuthGuard from 'utils/route-guard/AuthGuard';
-import AuthRegisterLawyer from 'sections/auth/auth-forms/AuthRegisterLawyer';
 
 // render - dashboard
 const DashboardDefault = Loadable(lazy(() => import('pages/dashboard/default')));
@@ -568,10 +567,6 @@ const MainRoutes = {
         {
           path: 'register',
           element: <AuthRegister />
-        },
-        {
-          path: 'register-lawyer',
-          element: <AuthRegisterLawyer />
         },
         {
           path: 'forgot-password',
