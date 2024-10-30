@@ -1,4 +1,4 @@
-import { RefObject, useEffect } from 'react';
+import { RefObject } from 'react';
 import { useOutletContext } from 'react-router';
 
 // material-ui
@@ -35,7 +35,7 @@ import { dispatch, RootState } from 'store';
 // assets
 import { Add } from 'iconsax-react';
 import useAuth from 'hooks/useAuth';
-import { getLawyerById, updateLawyerProfile } from 'store/reducers/lawyer';
+import {  updateLawyerProfile } from 'store/reducers/lawyer';
 import { useSelector } from 'react-redux';
 
 // styles & constant
@@ -111,11 +111,6 @@ const TabPersonal = () => {
 
   const inputRef = useInputRef();
 
-  useEffect(() => {
-    if (isLoggedIn && user?.id) {
-      dispatch(getLawyerById(user.id));
-    }
-  }, [isLoggedIn, user?.id, dispatch]);
 
   const initialValues = {
     firstname: lawyerData?.firstname || '',

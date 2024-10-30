@@ -14,6 +14,8 @@ import BackRight from 'assets/images/profile/UserProfileBackRight';
 
 // types
 import { ThemeMode } from 'types/config';
+import { RootState, useSelector } from 'store';
+import { Lawyer } from 'types/lawyer';
 
 // ==============================|| USER PROFILE - TOP CARD ||============================== //
 
@@ -24,6 +26,14 @@ interface Props {
 const ProfileCard = ({ focusInput }: Props) => {
   const theme = useTheme();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
+  const { lawyer } = useSelector((state: RootState) => state.lawyer); // Access the lawyer data
+
+  // Define required fields for profile completion
+  const requiredFields: (keyof Lawyer)[] = [ 'email', 'contact', 'address', 'note'];
+
+  // Calculate profile completion percentage
+  const filledFieldsCount = requiredFields.filter((field) => lawyer?.[field]).length;
+  const profileCompletion = (filledFieldsCount / requiredFields.length) * 100;
 
   return (
     <MainCard
@@ -38,12 +48,15 @@ const ProfileCard = ({ focusInput }: Props) => {
         <Grid item>
           <Stack direction="row" spacing={matchDownSM ? 1 : 2} alignItems="center">
             <Box sx={{ ml: { xs: 0, sm: 1 } }}>
-              <ProfileRadialChart />
+              {/* Pass profile completion percentage to ProfileRadialChart */}
+              <ProfileRadialChart series={[profileCompletion]} />
             </Box>
             <Stack spacing={0.75}>
               <Typography variant="h5">Edit Your Profile</Typography>
               <Typography variant="body2" color="secondary">
-                Complete your profile to unlock all features
+                {profileCompletion === 100
+                  ? 'Your profile is complete!'
+                  : 'Complete your profile to unlock all features'}
               </Typography>
             </Stack>
           </Stack>
@@ -60,5 +73,6 @@ const ProfileCard = ({ focusInput }: Props) => {
     </MainCard>
   );
 };
+
 
 export default ProfileCard;

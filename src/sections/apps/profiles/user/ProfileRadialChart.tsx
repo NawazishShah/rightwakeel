@@ -37,7 +37,7 @@ const redialBarChartOptions = {
 
 export interface ApexRedialBarChartProps extends ChartProps {}
 
-const ProfileRadialChart = (props: ApexRedialBarChartProps) => {
+const ProfileRadialChart = ({ series }: { series: number[] }) => {
   const theme = useTheme();
   const mode = theme.palette.mode;
 
@@ -47,7 +47,6 @@ const ProfileRadialChart = (props: ApexRedialBarChartProps) => {
   const grey500 = theme.palette.secondary.main;
   const grey200 = theme.palette.secondary[200];
 
-  const [series] = useState<number[]>([30]);
   const [options, setOptions] = useState<ChartProps>(redialBarChartOptions);
 
   useEffect(() => {

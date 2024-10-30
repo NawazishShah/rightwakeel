@@ -1,7 +1,6 @@
 import { useEffect, useState, ChangeEvent, MouseEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { getLawyerById } from 'store/reducers/lawyer'; // Action to fetch lawyer by ID
 import { useTheme } from '@mui/material/styles';
 import { Box, Divider, FormLabel, Grid, TextField, Menu, MenuItem, Stack, Typography } from '@mui/material';
 import MainCard from 'components/MainCard';
@@ -10,7 +9,7 @@ import ProfileTab from './ProfileTab';
 import { facebookColor, linkedInColor } from 'config';
 import { Google, Facebook, Apple, Camera, More } from 'iconsax-react';
 import useAuth from 'hooks/useAuth';
-import { dispatch, RootState } from 'store';
+import { RootState } from 'store';
 import IconButton from 'components/@extended/IconButton';
 import axios from 'axios';
 
@@ -24,9 +23,7 @@ const ProfileTabs = ({ focusInput }: { focusInput: () => void }) => {
   const [selectedImage, setSelectedImage] = useState<File | undefined>(undefined);
   const [avatar, setAvatar] = useState<string | undefined>(undefined);
   
-  useEffect(() => {
-    dispatch(getLawyerById(user?.id ?? '')); // Dispatch action to fetch lawyer data
-  }, [dispatch, user?.id]);
+
 
   useEffect(() => {
     // Set the avatar either from the selected image or from the lawyer object (if available)

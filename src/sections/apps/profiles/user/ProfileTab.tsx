@@ -7,6 +7,7 @@ import { List, ListItemButton, ListItemIcon, ListItemText } from '@mui/material'
 
 // assets
 import { CardCoin, Lock, Profile, Setting3 } from 'iconsax-react';
+import { RootState, useSelector } from 'store';
 
 function getPathIndex(pathname: string) {
   let selectedTab = 0;
@@ -33,6 +34,8 @@ const ProfileTab = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const { lawyer } = useSelector((state: RootState) => state.lawyer); // Access the lawyer data
+console.log(lawyer, "lawyer in profile tab")
 
   const [selectedIndex, setSelectedIndex] = useState(getPathIndex(pathname));
   const handleListItemClick = (index: number, route: string) => {
