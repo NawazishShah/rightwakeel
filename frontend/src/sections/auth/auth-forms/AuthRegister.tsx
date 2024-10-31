@@ -50,9 +50,16 @@ const AuthRegister = () => {
   const navigate = useNavigate();
   const { register } = useAuth(); // Get the register function
 
-
   const [level, setLevel] = useState<StringColorProps>();
   const [showPassword, setShowPassword] = useState(false);
+
+  const getRoleFromPath = () => {
+    if (location.pathname === '/login' || location.pathname === '/register') return 'user';
+    if (location.pathname === '/lawyer/login' || location.pathname === '/lawyer/register') return 'lawyer';
+    if (location.pathname === '/admin/login' || location.pathname === '/admin/register') return 'admin';
+    return 'user'; // Default role if no match
+  };
+  const role = getRoleFromPath();
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
   };
@@ -72,58 +79,57 @@ const AuthRegister = () => {
 
   return (
     <>
-<Formik
-      initialValues={{
-        firstname: '',
-        lastname: '',
-        email: '',
-        company: '',
-        password: '',
-        submit: null
-      }}
-      validationSchema={Yup.object().shape({
-        firstname: Yup.string().max(255).required('First Name is required'),
-        lastname: Yup.string().max(255).required('Last Name is required'),
-        email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
-        password: Yup.string().max(255).required('Password is required')
-      })}
-      onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
-        console.log('Form submitted', values);
-        try {
-          await register(values); // Call the register function
-          if (scriptedRef.current) {
-            setStatus({ success: true });
-            setSubmitting(false);
-            dispatch(
-              openSnackbar({
-                open: true,
-                message: 'Your registration has been successfully completed.',
-                variant: 'alert',
-                alert: { color: 'success' },
-                close: false
-              })
-            );
-            setTimeout(() => {
-              navigate('/login', { replace: true });
-            }, 1500);
-          }
-        } catch (error) {
-          if (scriptedRef.current) {
-            setStatus({ success: false });
-            const axiosError = error as AxiosError<ApiErrorResponse>; // Safe type assertion with the expected structure
-            console.log(axiosError)
-      
-            if (axiosError.response) {
-              setErrors({ submit: axiosError.response.data.msg || 'An unknown error occurred.' });
-            } else {
-              setErrors({ submit: 'An unexpected error occurred.' });
+      <Formik
+        initialValues={{
+          firstname: '',
+          lastname: '',
+          email: '',
+          company: '',
+          password: '',
+          submit: null
+        }}
+        validationSchema={Yup.object().shape({
+          firstname: Yup.string().max(255).required('First Name is required'),
+          lastname: Yup.string().max(255).required('Last Name is required'),
+          email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
+          password: Yup.string().max(255).required('Password is required')
+        })}
+        onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
+          console.log('Form submitted', values);
+          try {
+            await register(values); // Call the register function
+            if (scriptedRef.current) {
+              setStatus({ success: true });
+              setSubmitting(false);
+              dispatch(
+                openSnackbar({
+                  open: true,
+                  message: 'Your registration has been successfully completed.',
+                  variant: 'alert',
+                  alert: { color: 'success' },
+                  close: false
+                })
+              );
+              setTimeout(() => {
+                navigate('/login', { replace: true });
+              }, 1500);
             }
-            setSubmitting(false);
+          } catch (error) {
+            if (scriptedRef.current) {
+              setStatus({ success: false });
+              const axiosError = error as AxiosError<ApiErrorResponse>; // Safe type assertion with the expected structure
+              console.log(axiosError);
+
+              if (axiosError.response) {
+                setErrors({ submit: axiosError.response.data.msg || 'An unknown error occurred.' });
+              } else {
+                setErrors({ submit: 'An unexpected error occurred.' });
+              }
+              setSubmitting(false);
+            }
           }
-        }
-      }}
-      
-    >
+        }}
+      >
         {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
           <form noValidate onSubmit={handleSubmit}>
             <Grid container spacing={3}>
@@ -170,27 +176,29 @@ const AuthRegister = () => {
                   )}
                 </Stack>
               </Grid>
-              <Grid item xs={12}>
-                <Stack spacing={1}>
-                  <InputLabel htmlFor="company-signup">Company</InputLabel>
-                  <OutlinedInput
-                    fullWidth
-                    error={Boolean(touched.company && errors.company)}
-                    id="company-signup"
-                    value={values.company}
-                    name="company"
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    placeholder="Demo Inc."
-                    inputProps={{}}
-                  />
-                  {touched.company && errors.company && (
-                    <FormHelperText error id="helper-text-company-signup">
-                      {errors.company}
-                    </FormHelperText>
-                  )}
-                </Stack>
-              </Grid>
+              {role === 'user' && (
+                <Grid item xs={12}>
+                  <Stack spacing={1}>
+                    <InputLabel htmlFor="company-signup">Company</InputLabel>
+                    <OutlinedInput
+                      fullWidth
+                      error={Boolean(touched.company && errors.company)}
+                      id="company-signup"
+                      value={values.company}
+                      name="company"
+                      onBlur={handleBlur}
+                      onChange={handleChange}
+                      placeholder="Demo Inc."
+                      inputProps={{}}
+                    />
+                    {touched.company && errors.company && (
+                      <FormHelperText error id="helper-text-company-signup">
+                        {errors.company}
+                      </FormHelperText>
+                    )}
+                  </Stack>
+                </Grid>
+              )}
               <Grid item xs={12}>
                 <Stack spacing={1}>
                   <InputLabel htmlFor="email-signup">Email Address*</InputLabel>

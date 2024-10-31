@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import {  useLayoutEffect, useRef } from 'react';
 
 // material-ui
 import { Grid } from '@mui/material';
@@ -18,7 +18,7 @@ const UserProfile = () => {
 
   const { user } = useAuth();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (user?.id) {
       dispatch(getLawyerById(user.id)); // Fetch lawyer data only once
     }

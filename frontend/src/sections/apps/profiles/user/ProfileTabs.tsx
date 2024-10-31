@@ -22,18 +22,15 @@ const ProfileTabs = ({ focusInput }: { focusInput: () => void }) => {
 
   const [selectedImage, setSelectedImage] = useState<File | undefined>(undefined);
   const [avatar, setAvatar] = useState<string | undefined>(undefined);
-  
-
 
   useEffect(() => {
     // Set the avatar either from the selected image or from the lawyer object (if available)
     if (selectedImage) {
       setAvatar(URL.createObjectURL(selectedImage));
-      console.log(selectedImage, URL.createObjectURL(selectedImage), "url imgaes")
+      console.log(selectedImage, URL.createObjectURL(selectedImage), 'url imgaes');
     } else if (lawyer && lawyer.avatar) {
       setAvatar(`http://localhost:5000${lawyer.avatar}`); // Load avatar from the lawyer data
-      console.log(lawyer.avatar)
-
+      console.log(lawyer.avatar);
     }
   }, [selectedImage, lawyer]);
 
@@ -53,15 +50,15 @@ const ProfileTabs = ({ focusInput }: { focusInput: () => void }) => {
       console.error('User ID is not available');
       return; // Exit if user ID is not available
     }
-    
+
     const formData = new FormData();
     formData.append('avatar', file);
 
     try {
       const response = await axios.put(`http://localhost:5000/api/lawyers/updateProfilePic/${user.id}`, formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+          'Content-Type': 'multipart/form-data'
+        }
       });
 
       console.log('Profile updated successfully', response.data);
@@ -171,7 +168,9 @@ const ProfileTabs = ({ focusInput }: { focusInput: () => void }) => {
               onChange={handleChangeAvatar}
             />
             <Stack spacing={0.5} alignItems="center">
-              <Typography variant="h5">{lawyer?.firstname} {lawyer?.lastname}</Typography>
+              <Typography variant="h5">
+                {lawyer?.firstname} {lawyer?.lastname}
+              </Typography>
               <Typography color="secondary">{lawyer?.designation}</Typography>
             </Stack>
             <Stack direction="row" spacing={3} sx={{ '& svg': { fontSize: '1.15rem', cursor: 'pointer' } }}>
@@ -185,18 +184,22 @@ const ProfileTabs = ({ focusInput }: { focusInput: () => void }) => {
         <Grid item xs={12} sm={6} md={12}>
           <Stack direction="row" justifyContent="space-around" alignItems="center">
             <Stack spacing={0.5} alignItems="center">
-              <Typography variant="h5">86</Typography>
-              <Typography color="secondary">Post</Typography>
+              <Typography variant="h5">5</Typography>
+              <Typography color="secondary">Cases</Typography>
             </Stack>
+
             <Divider orientation="vertical" flexItem />
+
             <Stack spacing={0.5} alignItems="center">
-              <Typography variant="h5">40</Typography>
-              <Typography color="secondary">Project</Typography>
+              <Typography variant="h5">1</Typography>
+              <Typography color="secondary">Experience</Typography>
             </Stack>
+
             <Divider orientation="vertical" flexItem />
+
             <Stack spacing={0.5} alignItems="center">
-              <Typography variant="h5">4.5K</Typography>
-              <Typography color="secondary">Members</Typography>
+              <Typography variant="h5">10</Typography>
+              <Typography color="secondary">Clients</Typography>
             </Stack>
           </Stack>
         </Grid>
