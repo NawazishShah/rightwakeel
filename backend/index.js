@@ -26,7 +26,7 @@
   
   // CORS configuration
   app.use(cors({
-    origin: 'http://localhost:3000', // Allow requests only from your frontend
+    origin: 'https://rightwakeel.vercel.app/', // Allow requests only from your frontend
     credentials: true // Enable cookies/sessions if needed
   }));
   
