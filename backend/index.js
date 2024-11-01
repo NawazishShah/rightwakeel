@@ -20,32 +20,15 @@
 
   const jwtSecret = process.env.JWT_SECRET_KEY 
 
-  const allowedOrigins = [
-    'https://www.rightwakeel.com',
-    'https://rightwakeel-h1f3ioa94-alis-projects-70a04678.vercel.app'
-  ];
-  
-  const corsOptions = {
-    origin: allowedOrigins,
-    credentials: true,
-    methods: 'GET, POST, PUT, DELETE, OPTIONS',
-    allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept'
-  };
-  
-  app.use(cors(corsOptions));
-  app.options('*', cors(corsOptions)); // Enable pre-flight requests for all routes
-  
-  
-
   
   // Middleware
   app.use(express.json());
   
   // CORS configuration
-  // app.use(cors({
-  //   origin: 'https://www.rightwakeel.com', // Allow requests only from your frontend
-  //   credentials: true // Enable cookies/sessions if needed
-  // }));
+  app.use(cors({
+    origin: 'https://www.rightwakeel.com/', // Allow requests only from your frontend
+    credentials: true // Enable cookies/sessions if needed
+  }));
   
   app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
   // API Routes
