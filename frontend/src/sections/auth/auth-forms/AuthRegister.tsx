@@ -1,5 +1,5 @@
 import { useEffect, useState, SyntheticEvent } from 'react';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
 // import axios from 'axios';
 
 // material-ui
@@ -49,9 +49,12 @@ const AuthRegister = () => {
   const scriptedRef = useScriptRef();
   const navigate = useNavigate();
   const { register } = useAuth(); // Get the register function
+  const location = useLocation(); 
 
   const [level, setLevel] = useState<StringColorProps>();
   const [showPassword, setShowPassword] = useState(false);
+
+  
 
   const getRoleFromPath = () => {
     if (location.pathname === '/login' || location.pathname === '/register') return 'user';
