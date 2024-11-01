@@ -25,19 +25,16 @@
     'https://rightwakeel-h1f3ioa94-alis-projects-70a04678.vercel.app'
   ];
   
-  app.use((req, res, next) => {
-    const origin = req.headers.origin;
-    if (allowedOrigins.includes(origin)) {
-      res.setHeader('Access-Control-Allow-Origin', origin);
-      res.setHeader('Access-Control-Allow-Credentials', 'true'); // Allow cookies if needed
-    }
-    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    if (req.method === 'OPTIONS') {
-      return res.sendStatus(200); // Send OK status for preflight requests
-    }
-    next();
-  });
+  const corsOptions = {
+    origin: allowedOrigins,
+    credentials: true,
+    methods: 'GET, POST, PUT, DELETE, OPTIONS',
+    allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept'
+  };
+  
+  app.use(cors(corsOptions));
+  app.options('*', cors(corsOptions)); // Enable pre-flight requests for all routes
+  
   
 
   
