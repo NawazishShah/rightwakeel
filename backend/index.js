@@ -20,15 +20,35 @@
 
   const jwtSecret = process.env.JWT_SECRET_KEY 
 
+  const allowedOrigins = [
+    'https://www.rightwakeel.com',
+    'https://rightwakeel-h1f3ioa94-alis-projects-70a04678.vercel.app'
+  ];
+  
+  app.use((req, res, next) => {
+    const origin = req.headers.origin;
+    if (allowedOrigins.includes(origin)) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+      res.setHeader('Access-Control-Allow-Credentials', 'true'); // Allow cookies if needed
+    }
+    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    if (req.method === 'OPTIONS') {
+      return res.sendStatus(200); // Send OK status for preflight requests
+    }
+    next();
+  });
+  
+
   
   // Middleware
   app.use(express.json());
   
   // CORS configuration
-  app.use(cors({
-    origin: 'https://www.rightwakeel.com', // Allow requests only from your frontend
-    credentials: true // Enable cookies/sessions if needed
-  }));
+  // app.use(cors({
+  //   origin: 'https://www.rightwakeel.com', // Allow requests only from your frontend
+  //   credentials: true // Enable cookies/sessions if needed
+  // }));
   
   app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
   // API Routes
